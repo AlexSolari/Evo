@@ -26,7 +26,7 @@ namespace Evo.Core.Entities
         public override void Reproduce()
         {
             var rand = new Random();
-            var maxCount = (Global.Objects.Count > 100) ? 2 : 6;
+            var maxCount = (Global.Objects.Count > 100) ? 3 : 6;
             for (int i = rand.Next(2, maxCount); i >= 0; i--)
             {
                 rand = new Random(Rand.Int());
@@ -54,7 +54,7 @@ namespace Evo.Core.Entities
                 GrowTimer--;
 
             base.Update();
-            if (Rand.Float() > 0.9)
+            if (Rand.Float() > 0.9 && Global.Objects.Count < 100)
                 GameScene.Instance.Add(new Particle(X, Y, "1.png", 2, 2)
                 {
                     LifeSpan = 30,

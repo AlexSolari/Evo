@@ -63,7 +63,7 @@ namespace Evo.Core.Entities
 
             if (Hunger == 0)
                 Die();    
-            else if (Hunger < 300)
+            else if (Hunger < 400)
             {
                 foreach (Cell target in tmp)
                 {
@@ -116,7 +116,7 @@ namespace Evo.Core.Entities
                         Speed = Rand.Int(MinSpeed, MaxSpeed);
                     }
             base.Update();
-            if (Rand.Float() > 0.9)
+            if (Rand.Float() > 0.9 && Global.Objects.Count < 100)
                 GameScene.Instance.Add(new Particle(X, Y, "2.png", 2, 2)
                 {
                     LifeSpan = 30,

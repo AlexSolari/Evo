@@ -10,8 +10,8 @@ namespace Evo.Core
 {
     public class Global
     {
-        public static int Width = 900;
-        public static int Height = 900;
+        public static int Width = 1300;
+        public static int Height = 700;
         public static List<Cell> Objects = new List<Cell>();
         public static int GrowLimit = 10;
         public static int TargetingRadius = 228;

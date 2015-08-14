@@ -77,6 +77,10 @@ namespace Evo.Core.Entities
 
         public virtual void AITick()
         {
+
+            var rand = new Random();
+            if (X < 0 || Y < 0 || X > Global.Width || Y > Global.Height)
+                Target = new Point(rand.Next(Global.Width), rand.Next(Global.Height));
             dynamic currentTarget;
             if (Target is Point)
                 currentTarget = (Target as Point?).Value;
@@ -88,7 +92,6 @@ namespace Evo.Core.Entities
             Direction = tmp;
             if (Target is Point)
             {
-                var rand = new Random();
                 var targ = Target as Point?;
                 if (Global.IsNear(X, targ.Value.X) && Global.IsNear(Y, targ.Value.Y))
                 {
