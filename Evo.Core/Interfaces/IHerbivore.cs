@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evo.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Evo.Core.Interfaces
 {
     interface IHerbivore
     {
-        void Runaway();
+        void Runaway(Cell from);
+        void Chill();
     }
 }

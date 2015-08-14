@@ -11,6 +11,7 @@ namespace Evo.Core.Entities
     class Herbivore : Cell, IHerbivore
     {
         public int GrowTimer { get; private set; }
+
         public Herbivore(Point position ,int size = 2, int minspeed = 1, int maxspeed = 2) : base(position , size, minspeed, maxspeed, Color.Green)
         {
             GrowTimer = 75;
@@ -18,17 +19,18 @@ namespace Evo.Core.Entities
 
         public override void Grow(int value)
         {
-            GrowTimer = 75;
+            GrowTimer = 100;
             base.Grow(value);
         }
 
         public override void Reproduce()
         {
             var rand = new Random();
-            var maxCount = (Global.Objects.Count > 300) ? 2 : 5;
+            var maxCount = (Global.Objects.Count > 100) ? 2 : 6;
             for (int i = rand.Next(2, maxCount); i >= 0; i--)
             {
-                var pos = new Point((int)X + rand.Next(-50, 50), (int)Y + rand.Next(-50, 50));
+                rand = new Random(Rand.Int());
+                var pos = new Point((int)X + rand.Next(-10, 10), (int)Y + rand.Next(-10, 10));
                 var entity = new Herbivore(new Point(), 2, rand.Next(this.MinSpeed, this.MinSpeed + 1), rand.Next(this.MaxSpeed - 1, this.MaxSpeed + 1));
                 Scene.Add(entity);
                 entity.SetPosition(pos.X, pos.Y);
@@ -47,16 +49,37 @@ namespace Evo.Core.Entities
             AITick();
 
             if (GrowTimer == 0)
-                Grow(1);
+                Grow(Rand.Int(1, 3));
             else
                 GrowTimer--;
 
             base.Update();
+            if (Rand.Float() > 0.9)
+                GameScene.Instance.Add(new Particle(X, Y, "1.png", 2, 2)
+                {
+                    LifeSpan = 30,
+                    FinalAngle = Rand.Int(360),
+                    FinalAlpha = 0,
+                    FinalX = X + Rand.Int(-20, 20) * Rand.Float(),
+                    FinalY = Y + Rand.Int(-20, 20) * Rand.Float(),
+                    FinalScaleX = 0.5f,
+                    LockScaleRatio = true
+                });
         }
 
-        public void Runaway()
+        public void Runaway(Cell from)
         {
+            this.Target = new Point()
+            {
+                X = Convert.ToInt32(X + (X - from.X)*1.33),
+                Y = Convert.ToInt32(Y + (Y - from.Y)*1.33)
+            };
             Speed = MaxSpeed;
+        }
+
+        public void Chill()
+        {
+            Speed = MinSpeed;
         }
     }
 }

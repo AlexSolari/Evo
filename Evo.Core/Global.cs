@@ -10,11 +10,11 @@ namespace Evo.Core
 {
     public class Global
     {
-        public static int Width = 500;
-        public static int Height = 500;
+        public static int Width = 900;
+        public static int Height = 900;
         public static List<Cell> Objects = new List<Cell>();
         public static int GrowLimit = 10;
-        public static int TargetingRadius = 200;
+        public static int TargetingRadius = 228;
 
         public static void ReduceVector(ref Vector2 vector, float limit)
         {

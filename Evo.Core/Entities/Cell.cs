@@ -56,16 +56,6 @@ namespace Evo.Core.Entities
 
         public void Move()
         {
-            dynamic currentTarget;
-            if (Target is Point)
-                currentTarget = (Target as Point?).Value;
-            else
-                currentTarget = Target as Cell;
-
-            var tmp = new Vector2(currentTarget.X - X, currentTarget.Y - Y);
-            Global.ReduceVector(ref tmp, (float)Speed);
-            Direction = tmp;
-            //Console.WriteLine("{0} : {1} | {2}:{3}", tmp.X, tmp.Y, currentTarget.X, currentTarget.Y);
             this.X += Direction.X;
             this.Y += Direction.Y;
         }
@@ -79,14 +69,23 @@ namespace Evo.Core.Entities
         public virtual void Grow(int value)
         {
             Size += value;
-           // SetGraphic(Image.CreateCircle(Size, SpriteColor));
-            //Graphic.CenterOrigin();
+            SetGraphic(Image.CreateCircle(Size/2, SpriteColor));
+            Graphic.CenterOrigin();
             if (Size > Global.GrowLimit)
                 Reproduce();
         }
 
         public virtual void AITick()
-        {          
+        {
+            dynamic currentTarget;
+            if (Target is Point)
+                currentTarget = (Target as Point?).Value;
+            else
+                currentTarget = Target as Cell;
+
+            var tmp = new Vector2(currentTarget.X - X, currentTarget.Y - Y);
+            Global.ReduceVector(ref tmp, (float)Speed);
+            Direction = tmp;
             if (Target is Point)
             {
                 var rand = new Random();
