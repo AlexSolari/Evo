@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2D2E2FA1-B615-4222-9F89-74A93ED7EF49}</ProjectGuid>
+    <ProjectGuid>{30197442-C237-4300-9D80-8ADCBE5CC4A8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Evo.Core</RootNamespace>
-    <AssemblyName>Evo.Core</AssemblyName>
+    <RootNamespace>Evo.Config</RootNamespace>
+    <AssemblyName>Evo.Config</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,30 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Debugging\TimeManagment.cs" />
-    <Compile Include="Entities\Cell.cs" />
-    <Compile Include="Entities\Herbivore.cs" />
-    <Compile Include="Entities\Predator.cs" />
-    <Compile Include="GameScene.cs" />
-    <Compile Include="Global.cs" />
-    <Compile Include="Interfaces\IAIControllable.cs" />
-    <Compile Include="Interfaces\IGrowable.cs" />
-    <Compile Include="Interfaces\IHerbivore.cs" />
-    <Compile Include="Interfaces\ILifeForm.cs" />
-    <Compile Include="Interfaces\IMovable.cs" />
-    <Compile Include="Interfaces\IPredator.cs" />
-    <Compile Include="Interfaces\IReproductable.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Evo.Config\Evo.Config.csproj">
-      <Project>{30197442-c237-4300-9d80-8adcbe5cc4a8}</Project>
-      <Name>Evo.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Otter\Otter.csproj">
-      <Project>{236485c2-a7ba-4dcd-808a-b3a634764402}</Project>
-      <Name>Otter</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

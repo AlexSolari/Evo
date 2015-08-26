@@ -48,6 +48,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Evo.Config\Evo.Config.csproj">
+      <Project>{30197442-c237-4300-9d80-8adcbe5cc4a8}</Project>
+      <Name>Evo.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Evo.Core\Evo.Core.csproj">
       <Project>{2d2e2fa1-b615-4222-9f89-74a93ed7ef49}</Project>
       <Name>Evo.Core</Name>

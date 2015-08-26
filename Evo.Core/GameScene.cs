@@ -12,26 +12,14 @@ namespace Evo.Core
     {
         public GameScene()
         {
-            Add(new Predator(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            Add(new Herbivore(new Point(Rand.Int(500), Rand.Int(500))));
-            
+            for (int i = 0; i < Global.SystemConfig.Predators; i++)
+            {
+                Add(new Predator(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));
+            }
+            for (int i = 0; i < Global.SystemConfig.Herbivores; i++)
+            {
+                Add(new Herbivore(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));
+            }            
         }
     }
 }
