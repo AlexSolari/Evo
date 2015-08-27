@@ -52,7 +52,12 @@ namespace Evo.Core.Entities
             RemoveSelf();
         }
 
-        public abstract void Reproduce();
+        public virtual void Reproduce()
+        {
+            Age += 1;
+            if (Age > 3)
+                Die();
+        }
 
         public void Move()
         {
@@ -89,6 +94,9 @@ namespace Evo.Core.Entities
         public virtual void Grow(int value)
         {
             Size += value;
+            Sprite = Image.CreateCircle(Size/2, SpriteColor);
+            Graphic = Sprite;
+            Graphic.CenterOrigin();
             if (Size > Global.GrowLimit)
                 Reproduce();
         }

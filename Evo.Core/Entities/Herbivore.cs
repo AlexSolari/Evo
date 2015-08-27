@@ -28,18 +28,16 @@ namespace Evo.Core.Entities
 
         public override void Reproduce()
         {
-            if (Global.Objects.Count > 400)
-                return;
-            var rand = new Random();
-            var maxCount = (Global.Objects.Count > 300) ? 1 : 3;
-            for (int i = rand.Next(1, maxCount); i >= 0; i--)
+            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
+            var maxCount = (herbivoresCount > 300) ? 1 : 3;
+            for (int i = Rand.Int(1, maxCount); i >= 0; i--)
             {
-                rand = new Random(Rand.Int());
-                var pos = new Point((int)X + rand.Next(-10, 10), (int)Y + rand.Next(-10, 10));
+                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
                 var entity = new Herbivore(new Point(), 2, Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
                 Scene.Add(entity);
                 entity.SetPosition(pos.X, pos.Y);
             }
+            base.Reproduce();
         }
 
         public override void AITick()
@@ -56,6 +54,7 @@ namespace Evo.Core.Entities
 
         public override void Update()
         {
+            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
             ChilloutTimer--;
             if (ChilloutTimer <= 0)
             {
@@ -67,7 +66,18 @@ namespace Evo.Core.Entities
                 AITickCounter = Global.AITickDelay;
             }
             if (GrowTimer == 0)
-                Grow(Rand.Int(1, 3));
+            {
+                if (Size < Global.GrowLimit || herbivoresCount < 300)
+                    Grow(Rand.Int(1,3));
+                else
+                {
+                    var fate = Rand.Int(20);
+                    if (fate < 5)
+                        Reproduce();
+                    else
+                        Die();
+                }
+            }
             else
                 GrowTimer--;
 

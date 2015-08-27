@@ -41,31 +41,27 @@ namespace Evo.Core
 
         public static Point CreateRandomPoint()
         {
-            return new Point(Rand.Int(Global.Width-100)+50, Rand.Int(Global.Height-100)+50);
+            return new Point(Rand.Int(Global.Width), Rand.Int(Global.Height));
         }
 
-        public static double GetRandomMaxSpeed(Type of)
+        public static double GetRandomMaxSpeed(Type typeOfTarget)
         {
-            List<double> list = null;
-            if (of == typeof(Herbivore))
-                list = (from cell in Objects where (cell is Herbivore) select cell.MaxSpeed).ToList();
-            else
-                list = (from cell in Objects where (cell is Predator) select cell.MaxSpeed).ToList();
-            double result = (list.Sum() / list.Count);
+            var list = from cell in Objects
+                                where cell.GetType() == typeOfTarget
+                                select cell.MaxSpeed;
+            double result = list.Sum() / list.Count();
             var coef = (Rand.Int(100) < 30) ? 1.5 : 0.5;
-            return Math.Floor(result * coef);
+            return Math.Ceiling(result * coef);
         }
 
-        public static double GetRandomMinSpeed(Type of)
+        public static double GetRandomMinSpeed(Type typeOfTarget)
         {
-            List<double> list = null;
-            if (of == typeof(Herbivore))
-                list = (from cell in Objects where (cell is Herbivore) select cell.MinSpeed).ToList();
-            else
-                list = (from cell in Objects where (cell is Predator) select cell.MinSpeed).ToList();
-            double result = (list.Sum() / list.Count);
+            var list = from cell in Objects
+                       where cell.GetType() == typeOfTarget
+                       select cell.MinSpeed;
+            double result = list.Sum() / list.Count();
             var coef = (Rand.Int(100) < 30) ? 1.5 : 0.5;
-            return (int)Math.Floor(result * coef);
+            return (int)Math.Ceiling(result * coef);
         }
     }
 }

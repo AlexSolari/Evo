@@ -13,7 +13,7 @@ namespace Evo.Core.Entities
     {
         public int ChaseTimer { get; set; }
         public int Hunger { get; set; }
-        public Predator(Point position, int size = 2, double minspeed = 1, double maxspeed = 3)
+        public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 3)
             : base(position, size, minspeed, maxspeed, Color.Red)
         {
             Hunger = 400;
@@ -22,25 +22,27 @@ namespace Evo.Core.Entities
         {
 
             var rand = new Random();
-            for (int i = 2; i > 0; i--)
-            {
-                rand = new Random(Rand.Int());
-                var pos = new Point((int)X + rand.Next(-10, 10), (int)Y + rand.Next(-10, 10));
-                Scene.Add(new Predator(pos, 2, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator))));
-            }
-
+            rand = new Random(Rand.Int());
+            var pos = new Point((int)X + rand.Next(-10, 10), (int)Y + rand.Next(-10, 10));
+            Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator))));
             Hunger = 400;
+            base.Reproduce();
         }
 
         public void Eat(ILifeForm target)
         {
             Hunger += 100;
-            Grow(2);
+            Grow(2);//(int)Math.Ceiling((float)target.Size/Size));
             target.Die();
         }
 
         public override void AITick()
         {
+            if (Hunger <= 0)
+            { 
+                Die();
+                return;
+            }
             dynamic currentTarget;
             if (Target is Point)
                 currentTarget = (Target as Point?).Value;
@@ -48,25 +50,22 @@ namespace Evo.Core.Entities
                 currentTarget = Target as Cell;
             var DistanceToTarget = (Math.Sqrt(Math.Pow(X - currentTarget.X, 2) + Math.Pow(Y - currentTarget.Y, 2)));
 
-            var tmp = Global.Objects.ToList();
+            var tmp = from cell in Global.Objects
+                          where cell is Herbivore && cell.Size < Size
+                          select cell as Herbivore;
 
-            if (Hunger <= 0)
-                Die();
-            foreach (Cell target in tmp)
+            
+            foreach (var target in tmp)
             {
-                if (target is Herbivore)
+                double Distance = (Math.Sqrt(Math.Pow(X - target.X, 2) + Math.Pow(Y - target.Y, 2)));
+                if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget)
                 {
-                    var convertedTarget = target as Herbivore;
-                    double Distance = (Math.Sqrt(Math.Pow(X - convertedTarget.X, 2) + Math.Pow(Y - convertedTarget.Y, 2)));
-                    if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget)
-                    {
-                        convertedTarget.Chill();
-                        ChaseTimer = (convertedTarget.MaxSpeed >= MaxSpeed) ? 750 : 1500;
-                        Target = target;
-                        Speed = MaxSpeed;
-                        convertedTarget.Runaway(this);
-                        break;
-                    }
+                    target.Chill();
+                    ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 750 : 1500;
+                    Target = target;
+                    Speed = MaxSpeed;
+                    target.Runaway(this);
+                    break;
                 }
             }
 
@@ -87,18 +86,18 @@ namespace Evo.Core.Entities
                 AITick();
                 AITickCounter = Global.AITickDelay;
             }
-            var tmp = Global.Objects.ToList();
-            var nearestCells = from cell in tmp where (cell is Herbivore && (Math.Sqrt(Math.Pow(X - cell.X, 2) + Math.Pow(Y - cell.Y, 2))) < 5) select cell;
+            var nearestCells = (from cell in Global.Objects 
+                               where (cell is Herbivore && (Math.Sqrt(Math.Pow(X - cell.X, 2) + Math.Pow(Y - cell.Y, 2))) < 5 && cell.Size < Size) 
+                               select cell).ToList();
             foreach (var item in nearestCells)
             {
-
                 if (Target == item)
                 {
-                    Eat(item as ILifeForm);
+                    Eat(item);
                     ChaseTimer = 0;
                 }
                 else if (Rand.Float() >= 0.5)
-                    Eat(item as ILifeForm);
+                    Eat(item);
             }
             Hunger--;
             dynamic currentTarget;
