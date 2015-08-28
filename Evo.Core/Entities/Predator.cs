@@ -33,7 +33,7 @@ namespace Evo.Core.Entities
         public void Eat(ILifeForm target)
         {
             Hunger += 200;
-            Grow(1 + (int)Math.Ceiling((target.Size * 1.7) / Size));
+            Grow(1 + (int)Math.Ceiling((target.Size * 1.8) / Size));
             target.Die();
         }
 
@@ -62,7 +62,7 @@ namespace Evo.Core.Entities
                     if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget || (Target is Herbivore && (Target as Herbivore).Size >= Size))
                     {
                         target.Chill();
-                        ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 750 : 1500;
+                        ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 300 : 600;
                         Target = target;
                         Speed = MaxSpeed;
                         target.Runaway(this);
@@ -71,7 +71,7 @@ namespace Evo.Core.Entities
                }
 
             ChaseTimer--;
-            if (ChaseTimer == 750 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
+            if (ChaseTimer == 300 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
                 Speed = MaxSpeed + Global.ChargeSpeedDelta;
             if (ChaseTimer <= 0)
             {

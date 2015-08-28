@@ -12,6 +12,7 @@ namespace Evo.Core
     {
         public GameScene()
         {
+            Add(new Watcher());
             for (int i = 0; i < Global.SystemConfig.Predators; i++)
             {
                 Add(new Predator(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));

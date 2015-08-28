@@ -89,7 +89,7 @@ namespace Evo.Core.Entities
                 Y = Convert.ToInt32(Y + (Y - from.Y)*1.33)
             };
             Speed = MaxSpeed;
-            ChilloutTimer = (ChilloutTimer <= 0) ? 800 : ChilloutTimer;
+            ChilloutTimer = (ChilloutTimer <= 0) ? 500 : ChilloutTimer;
         }
 
         public void Chill()

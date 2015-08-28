@@ -46,11 +46,16 @@ namespace Evo.Core.Entities
 
             Global.Objects.Add(this);
         }
+
+        public void Destroy()
+        {
+            RemoveSelf();
+        }
         
         public void Die()
         {
             Global.Objects.Remove(this);
-            RemoveSelf();
+            Destroy();
         }
 
         public virtual void Reproduce()

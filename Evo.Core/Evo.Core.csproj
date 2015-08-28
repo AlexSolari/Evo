@@ -43,6 +43,7 @@
     <Compile Include="Entities\Cell.cs" />
     <Compile Include="Entities\Herbivore.cs" />
     <Compile Include="Entities\Predator.cs" />
+    <Compile Include="Entities\Watcher.cs" />
     <Compile Include="GameScene.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Interfaces\IAIControllable.cs" />
