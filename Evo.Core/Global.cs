@@ -14,7 +14,7 @@ namespace Evo.Core
         public static int Width { get { return SystemConfig.Width; } }
         public static int Height { get { return SystemConfig.Height; } }
         public static List<Cell> Objects = new List<Cell>();
-        public static int GrowLimit = 10;
+        public static int GrowLimit = 5;
 
         public static int AITickDelay {
             get 
@@ -50,7 +50,7 @@ namespace Evo.Core
                                 where cell.GetType() == typeOfTarget
                                 select cell.MaxSpeed;
             double result = list.Sum() / list.Count();
-            var coef = (Rand.Int(100) < 30) ? 1.5 : 0.5;
+            var coef = (Rand.Int(100) < 40) ? 1.2 : 1;
             return Math.Ceiling(result * coef);
         }
 

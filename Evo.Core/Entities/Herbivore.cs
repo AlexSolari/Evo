@@ -15,14 +15,14 @@ namespace Evo.Core.Entities
 
         public int ChilloutTimer { get; set; }
 
-        public Herbivore(Point position, int size = 2, double minspeed = 1, double maxspeed = 2)
+        public Herbivore(Point position, int size = 2, double minspeed = 1, double maxspeed = 1)
             : base(position, size, minspeed, maxspeed, Color.Green)
         {
         }
 
         public override void Grow(int value)
         {
-            GrowTimer = 120;
+            GrowTimer = Rand.Int(20,60);
             base.Grow(value);
         }
 
@@ -54,7 +54,6 @@ namespace Evo.Core.Entities
 
         public override void Update()
         {
-            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
             ChilloutTimer--;
             if (ChilloutTimer <= 0)
             {
@@ -67,16 +66,7 @@ namespace Evo.Core.Entities
             }
             if (GrowTimer == 0)
             {
-                if (Size < Global.GrowLimit || herbivoresCount < 300)
-                    Grow(Rand.Int(1,3));
-                else
-                {
-                    var fate = Rand.Int(20);
-                    if (fate < 5)
-                        Reproduce();
-                    else
-                        Die();
-                }
+                Grow(1);
             }
             else
                 GrowTimer--;
