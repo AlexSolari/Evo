@@ -12,15 +12,6 @@ namespace Evo
 {
     class Program
     {
-        const int SW_HIDE = 0;
-        const int SW_SHOW = 5;
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
         static int ReadInt()
         {
             var result = 0;
@@ -47,7 +38,7 @@ namespace Evo
 
             Console.Write("Enter predators start count: ");
             tmp = ReadInt();
-            config.Predators = (tmp == 0) ? (config.Width * config.Height) / 300000 : tmp;
+            config.Predators = (tmp == 0) ? (config.Width * config.Height) / 250000 : tmp;
 
             Console.Write("Enter herbivores start count: ");
             tmp = ReadInt();
@@ -63,10 +54,9 @@ namespace Evo
 
             Global.SystemConfig = config;
 
-            Game game = new Game("Castle War", Global.Width, Global.Height);
+            Game game = new Game("CRBEE", Global.Width, Global.Height);
             game.FirstScene = new GameScene();
-            var handle = GetConsoleWindow();
-            //ShowWindow(handle, SW_HIDE);
+            Console.Clear();
             game.Start();
         }
     }

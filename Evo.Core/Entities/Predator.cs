@@ -11,11 +11,13 @@ namespace Evo.Core.Entities
 {
     class Predator : Cell, IPredator
     {
+        public bool Tired { get; set; }
         public int ChaseTimer { get; set; }
         public int Hunger { get; set; }
         public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 3)
             : base(position, size, minspeed, maxspeed, Color.Red)
         {
+            Tired = false;
             Hunger = 500;
             GrowLimit = 6;
         }
@@ -24,7 +26,7 @@ namespace Evo.Core.Entities
             for (int i = 0; i < Rand.Int(3); i++)
             {
                 var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator))));
+                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + Rand.Int(2)));
             }
             Hunger = 500;
             base.Reproduce();
@@ -50,16 +52,16 @@ namespace Evo.Core.Entities
             else
                 currentTarget = Target as Cell;
             var DistanceToTarget = (Math.Sqrt(Math.Pow(X - currentTarget.X, 2) + Math.Pow(Y - currentTarget.Y, 2)));
-
+            
             var tmp = from cell in Global.Objects
                           where cell is Herbivore && cell.Size <= Size
                           select cell as Herbivore;
 
-            if (Target is Point)
+            if (!Tired)
                 foreach (var target in tmp)
                 {
                     double Distance = (Math.Sqrt(Math.Pow(X - target.X, 2) + Math.Pow(Y - target.Y, 2)));
-                    if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget || (Target is Herbivore && (Target as Herbivore).Size >= Size))
+                    if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget * 2 || (Target is Herbivore && (Target as Herbivore).Size >= Size))
                     {
                         target.Chill();
                         ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 300 : 600;
@@ -71,12 +73,15 @@ namespace Evo.Core.Entities
                }
 
             ChaseTimer--;
-            if (ChaseTimer == 300 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
+            if (ChaseTimer <= -100)
+                Tired = false;
+            if (ChaseTimer <= 300 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
                 Speed = MaxSpeed + Global.ChargeSpeedDelta;
-            if (ChaseTimer <= 0)
+            if (ChaseTimer <= 0 && Target is Herbivore)
             {
-                Target = Global.CreateRandomPoint();
+                Target = new Point((int)X + Rand.Int(-200, 200), (int)Y + Rand.Int(-200, 200));
                 Speed = MinSpeed;
+                Tired = true;
             }
 
             base.AITick();
@@ -107,7 +112,11 @@ namespace Evo.Core.Entities
             if (Target is Point)
                 currentTarget = (Target as Point?).Value;
             else
+            { 
                 currentTarget = Target as Cell;
+                if (currentTarget.Size > Size)
+                    ChaseTimer = 0;
+            }
             if ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y)
                     {
                         Target = Global.CreateRandomPoint();

@@ -10,9 +10,9 @@ namespace Evo.Core
 {
     public class GameScene : Scene
     {
-        public GameScene()
+        public GameScene(Watcher watcher = null)
         {
-            Add(new Watcher());
+            Add(new Watcher(watcher));
             for (int i = 0; i < Global.SystemConfig.Predators; i++)
             {
                 Add(new Predator(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));
