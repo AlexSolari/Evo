@@ -9,6 +9,8 @@ namespace Evo.Core.Interfaces
 {
     interface IHerbivore
     {
+        int GrowTimer { get; set; }
+        void ResetGrowTimer();
         void Runaway(Cell from);
         void Chill();
     }

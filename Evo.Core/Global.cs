@@ -13,8 +13,10 @@ namespace Evo.Core
         public static Config SystemConfig;
         public static int Width { get { return SystemConfig.Width; } }
         public static int Height { get { return SystemConfig.Height; } }
+
+        public const int ChargeDistance = 50;
+        public const int ChargeSpeedDelta = 2;
         public static List<Cell> Objects = new List<Cell>();
-        public static int GrowLimit = 5;
 
         public static int AITickDelay {
             get 

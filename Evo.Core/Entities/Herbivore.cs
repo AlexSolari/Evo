@@ -11,18 +11,25 @@ namespace Evo.Core.Entities
 {
     class Herbivore : Cell, IHerbivore
     {
-        public int GrowTimer { get; private set; }
+        public int GrowTimer { get; set; }
 
         public int ChilloutTimer { get; set; }
 
         public Herbivore(Point position, int size = 2, double minspeed = 1, double maxspeed = 1)
             : base(position, size, minspeed, maxspeed, Color.Green)
         {
+            GrowLimit = 5;
+            ResetGrowTimer();
+        }
+
+        public void ResetGrowTimer()
+        {
+            GrowTimer = Rand.Int(30, 40);
         }
 
         public override void Grow(int value)
         {
-            GrowTimer = Rand.Int(20,60);
+            ResetGrowTimer();
             base.Grow(value);
         }
 

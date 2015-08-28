@@ -13,18 +13,19 @@ namespace Evo.Core.Entities
     {
         public int ChaseTimer { get; set; }
         public int Hunger { get; set; }
-        public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 2)
+        public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 3)
             : base(position, size, minspeed, maxspeed, Color.Red)
         {
             Hunger = 500;
+            GrowLimit = 6;
         }
         public override void Reproduce()
         {
-
-            var rand = new Random();
-            rand = new Random(Rand.Int());
-            var pos = new Point((int)X + rand.Next(-10, 10), (int)Y + rand.Next(-10, 10));
-            Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator))));
+            for (int i = 0; i < Rand.Int(3); i++)
+            {
+                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
+                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator))));
+            }
             Hunger = 500;
             base.Reproduce();
         }
@@ -32,8 +33,7 @@ namespace Evo.Core.Entities
         public void Eat(ILifeForm target)
         {
             Hunger += 200;
-            Size += 1;
-            Grow(1);//(int)Math.Ceiling((float)target.Size/Size));
+            Grow(1 + (int)Math.Ceiling((target.Size * 1.7) / Size));
             target.Die();
         }
 
@@ -55,22 +55,24 @@ namespace Evo.Core.Entities
                           where cell is Herbivore && cell.Size <= Size
                           select cell as Herbivore;
 
-            
-            foreach (var target in tmp)
-            {
-                double Distance = (Math.Sqrt(Math.Pow(X - target.X, 2) + Math.Pow(Y - target.Y, 2)));
-                if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget)
+            if (Target is Point)
+                foreach (var target in tmp)
                 {
-                    target.Chill();
-                    ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 750 : 1500;
-                    Target = target;
-                    Speed = MaxSpeed;
-                    target.Runaway(this);
-                    break;
-                }
-            }
+                    double Distance = (Math.Sqrt(Math.Pow(X - target.X, 2) + Math.Pow(Y - target.Y, 2)));
+                    if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget || (Target is Herbivore && (Target as Herbivore).Size >= Size))
+                    {
+                        target.Chill();
+                        ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 750 : 1500;
+                        Target = target;
+                        Speed = MaxSpeed;
+                        target.Runaway(this);
+                        break;
+                    }
+               }
 
             ChaseTimer--;
+            if (ChaseTimer == 750 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
+                Speed = MaxSpeed + Global.ChargeSpeedDelta;
             if (ChaseTimer <= 0)
             {
                 Target = Global.CreateRandomPoint();

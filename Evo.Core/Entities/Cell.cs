@@ -22,12 +22,13 @@ namespace Evo.Core.Entities
         public double MinSpeed { get; set; }
         public double Speed { get; set; }
         public object Target { get; set; }
+        public int GrowLimit { get; set; }
         public Cell(Point position, int size = 2, double minSpeed = 1, double maxSpeed = 1, Color spriteColor = null)
         {
             var rnd = new Random();
 
             MinSpeed = minSpeed;
-            MaxSpeed = maxSpeed;
+            MaxSpeed = (maxSpeed > 5) ? 5 : maxSpeed;
             if (MinSpeed < 1) MinSpeed = 1;
             if (MaxSpeed < MinSpeed) MaxSpeed = MinSpeed;
             Size = size;
@@ -97,9 +98,9 @@ namespace Evo.Core.Entities
             Sprite = Image.CreateCircle(Size/2, SpriteColor);
             Graphic = Sprite;
             Graphic.CenterOrigin();
-            if (Size > Global.GrowLimit * 2)
+            if (Size > GrowLimit * 2)
                 Die();
-            if (Size > Global.GrowLimit && Global.Objects.Count < 300)
+            if (Size > GrowLimit && Global.Objects.Count < 300)
                 Reproduce();
         }
 
