@@ -15,11 +15,11 @@ namespace Evo.Core
             Add(new Watcher(watcher));
             for (int i = 0; i < Global.SystemConfig.Predators; i++)
             {
-                Add(new Predator(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));
+                Add(new Predator(new Point(Rand.Int(Global.Width), Rand.Int(Global.Height))));
             }
             for (int i = 0; i < Global.SystemConfig.Herbivores; i++)
             {
-                Add(new Herbivore(new Point(Rand.Int(Global.Height), Rand.Int(Global.Width))));
+                Add(new Herbivore(new Point(Rand.Int(Global.Width), Rand.Int(Global.Height))));
             }            
         }
     }

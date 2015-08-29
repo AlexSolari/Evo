@@ -14,7 +14,7 @@ namespace Evo.Core
         public static int Width { get { return SystemConfig.Width; } }
         public static int Height { get { return SystemConfig.Height; } }
 
-        public const int ChargeDistance = 100;
+        public const int ChargeDistance = 200;
         public const int ChargeSpeedDelta = 2;
         public static List<Cell> Objects = new List<Cell>();
 
@@ -41,6 +41,11 @@ namespace Evo.Core
             return Math.Abs(x1 - x2) < 10;
         }
 
+        public static double Distance(dynamic a, dynamic b)
+        {
+            return (Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2)));
+        }
+
         public static Point CreateRandomPoint()
         {
             return new Point(Rand.Int(Global.Width), Rand.Int(Global.Height));
@@ -52,8 +57,7 @@ namespace Evo.Core
                                 where cell.GetType() == typeOfTarget
                                 select cell.MaxSpeed;
             double result = list.Sum() / list.Count();
-            var coef = (Rand.Int(100) < 40) ? 1.2 : 1;
-            return Math.Ceiling(result * coef);
+            return Math.Ceiling(result + 1);
         }
 
         public static double GetRandomMinSpeed(Type typeOfTarget)
@@ -62,8 +66,7 @@ namespace Evo.Core
                        where cell.GetType() == typeOfTarget
                        select cell.MinSpeed;
             double result = list.Sum() / list.Count();
-            var coef = (Rand.Int(100) < 30) ? 1.5 : 0.5;
-            return (int)Math.Ceiling(result * coef);
+            return (int)Math.Ceiling(result);
         }
     }
 }

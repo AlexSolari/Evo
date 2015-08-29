@@ -30,31 +30,33 @@ namespace Evo
             Console.WriteLine("We need some data to start emulation. Leave field empty to use default.");
             Console.Write("Enter field width: ");
             tmp = ReadInt();
-            config.Width = (tmp == 0) ? (int)(screen.Width * 0.9) : tmp;
+            config.Width = (tmp == 0) ? (int)(screen.Width) : tmp;
 
             Console.Write("Enter field height: ");
             tmp = ReadInt();
-            config.Height = (tmp == 0) ? (int)(screen.Height * 0.9) : tmp;
+            config.Height = (tmp == 0) ? (int)(screen.Height) : tmp;
 
             Console.Write("Enter predators start count: ");
             tmp = ReadInt();
-            config.Predators = (tmp == 0) ? (config.Width * config.Height) / 250000 : tmp;
+            config.Predators = (tmp == 0) ? 30 : tmp;
 
             Console.Write("Enter herbivores start count: ");
             tmp = ReadInt();
-            config.Herbivores = (tmp == 0) ? config.Predators * 10 : tmp;
+            config.Herbivores = (tmp == 0) ? 50 : tmp;
 
             Console.Write("Enter predator targeting radius: ");
             tmp = ReadInt();
-            config.TargetingRadius = (tmp == 0) ? 230 : tmp;
+            config.TargetingRadius = (tmp == 0) ? 400 : tmp;
 
             Console.Write("Enter herbivores ranaway radius: ");
             tmp = ReadInt();
-            config.TargetingRadius = (tmp == 0) ? 120 : tmp;
+            config.RanawayRadius = (tmp == 0) ? 20 : tmp;
+
+            Console.Write("Run in fullscreen? (Y/N): ");
 
             Global.SystemConfig = config;
 
-            Game game = new Game("CRBEE", Global.Width, Global.Height);
+            Game game = new Game("CRBEE", Global.Width, Global.Height, 60, Char.ToUpper(Console.ReadKey().KeyChar) == 'Y');
             game.FirstScene = new GameScene();
             Console.Clear();
             game.Start();

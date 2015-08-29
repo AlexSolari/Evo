@@ -11,7 +11,7 @@ namespace Evo.Core.Interfaces
     {
         int GrowTimer { get; set; }
         void ResetGrowTimer();
-        void Runaway(Cell from);
+        void Runaway(Predator from);
         void Chill();
     }
 }

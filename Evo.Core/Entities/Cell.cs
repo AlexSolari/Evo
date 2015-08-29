@@ -35,7 +35,7 @@ namespace Evo.Core.Entities
 
             Speed = MinSpeed;
             SpriteColor = spriteColor;
-            Sprite = Image.CreateCircle(Size, SpriteColor);
+            Sprite = Image.CreateCircle(Size/2, SpriteColor);
             Direction = new Vector2();
             Target = new Point(rnd.Next(Global.Width), rnd.Next(Global.Height));
 
@@ -52,8 +52,10 @@ namespace Evo.Core.Entities
             RemoveSelf();
         }
         
-        public void Die()
+        public virtual void Die(bool allowReproduce = false)
         {
+            if (allowReproduce)
+                Reproduce();
             Global.Objects.Remove(this);
             Destroy();
         }
@@ -91,20 +93,17 @@ namespace Evo.Core.Entities
             this.Y += Direction.Y;
         }
 
-        public void Rotate(float angle)
-        {
-
-            throw new NotImplementedException();
-        }
-
         public virtual void Grow(int value)
         {
             Size += value;
             Sprite = Image.CreateCircle(Size/2, SpriteColor);
             Graphic = Sprite;
             Graphic.CenterOrigin();
+
+            var reproduceOnDeath = Global.Objects.Count < 400;
+
             if (Size > GrowLimit * 2)
-                Die();
+                Die(reproduceOnDeath);
             if (Size > GrowLimit && Global.Objects.Count < 300)
                 Reproduce();
         }
