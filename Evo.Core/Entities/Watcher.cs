@@ -32,7 +32,6 @@ namespace Evo.Core.Entities
 
         public override void Update()
         {
-            Ticks++;
             if (EndInitiated)
             {
                 EndTimer--;
@@ -41,29 +40,42 @@ namespace Evo.Core.Entities
                     Console.WriteLine("Cycle ended");
                     if (Global.Objects.Where(x => x is Herbivore).Count() != 0)
                     {
-                        CountOfResults["Green"] = CountOfResults["Green"] + 1;
-                        Console.WriteLine("Herbivores is too fast. All predators died from hunger");
+                        CountOfResults["Green"]++;
+                        Console.WriteLine("All predators died from hunger");
                     }
-                    else
+                    else if (Global.Objects.Where(x => x is Predator).Count() != 0)
                     {
-                        CountOfResults["Red"] = CountOfResults["Red"] + 1;
-                        Console.WriteLine("Herbivores is too slow. All herbivores died and all predators died from hunger");
+                        CountOfResults["Red"]++;
+                        Console.WriteLine("All herbivores eaten.");
                     }
                     Console.WriteLine("Tick's taken: {0}", Ticks);
-                    Console.WriteLine("Green's: {0} @ Red's: {1}]", CountOfResults["Green"], CountOfResults["Red"]);
+                    Console.WriteLine("Green's: {0} @ Red's: {1}", CountOfResults["Green"], CountOfResults["Red"]);
 
                     Game.RemoveScene();
-                    Global.Objects.ForEach(x => x.Destroy());
+                    foreach (var item in Scene.GetEntities<Cell>())
+                    {
+                        item.Destroy();
+                    }
                     Global.Objects.Clear();
                     Game.AddScene(new GameScene(this));
                     Scene.End();
+                    
                 }
             }
-            else if (Global.Objects.Where(x=>x is Predator).Count() == 0)
+            else if (Global.Objects.Where(x => x is Predator).Count() == 0 || Global.Objects.Where(x => x is Herbivore).Count() == 0)
             {
-                EndTimer = 500;
+                EndTimer = 100;
                 EndInitiated = true;
+                Console.WriteLine("================");
             }
+            else Ticks++;
+
+            if (Ticks % 500 == 0)
+                Global.Objects.ToList().ForEach(cell => 
+                {
+                    if (cell.Direction.Length == 0)
+                        cell.Die();
+                });
         }
     }
 }

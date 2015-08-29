@@ -1,4 +1,6 @@
-﻿using Evo.Core.Interfaces;
+﻿//#define SHOW_HUNGER
+
+using Evo.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,22 +13,30 @@ namespace Evo.Core.Entities
 {
     class Predator : Cell, IPredator
     {
-        public bool Tired { get; set; }
-        public int ChaseTimer { get; set; }
+#if SHOW_HUNGER
+        Graphic hungerText;
+#endif
+        public bool TargetCaptured { get; set; }
         public int Hunger { get; set; }
-        public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 3)
+        public Predator(Point position, int size = 4, double minspeed = 1, double maxspeed = 1)
             : base(position, size, minspeed, maxspeed, Color.Red)
         {
-            Tired = false;
-            Hunger = 500;
+#if SHOW_HUNGER
+            hungerText = new Text(Hunger.ToString(), 12);
+            hungerText.X = X;
+            hungerText.Y = Y - 10;
+#endif
+            TargetCaptured = false;
+            Hunger = 300;
             GrowLimit = 6;
         }
         public override void Reproduce()
         {
-            for (int i = 0; i < Rand.Int(3); i++)
+            var countOfChilds = Rand.Int(3);
+            for (int i = 0; i < countOfChilds; i++)
             {
                 var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + Rand.Int(2)));
+                Scene.Add(new Predator(pos, Size/countOfChilds, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + 1));
             }
             Hunger = 500;
             base.Reproduce();
@@ -34,8 +44,8 @@ namespace Evo.Core.Entities
 
         public void Eat(ILifeForm target)
         {
-            Hunger += 200;
-            Grow(1 + (int)Math.Ceiling((target.Size * 1.8) / Size));
+            Hunger += 20 * target.Size;
+            Grow((int)Math.Ceiling(1.5 * target.Size / Size));
             target.Die();
         }
 
@@ -46,83 +56,86 @@ namespace Evo.Core.Entities
                 Die();
                 return;
             }
-            dynamic currentTarget;
-            if (Target is Point)
-                currentTarget = (Target as Point?).Value;
-            else
-                currentTarget = Target as Cell;
-            var DistanceToTarget = (Math.Sqrt(Math.Pow(X - currentTarget.X, 2) + Math.Pow(Y - currentTarget.Y, 2)));
-            
-            var tmp = from cell in Global.Objects
-                          where cell is Herbivore && cell.Size <= Size
-                          select cell as Herbivore;
 
-            if (!Tired)
-                foreach (var target in tmp)
-                {
-                    double Distance = (Math.Sqrt(Math.Pow(X - target.X, 2) + Math.Pow(Y - target.Y, 2)));
-                    if (Distance <= Global.SystemConfig.TargetingRadius && Distance < DistanceToTarget * 2 || (Target is Herbivore && (Target as Herbivore).Size >= Size))
-                    {
-                        target.Chill();
-                        ChaseTimer = (target.MaxSpeed >= MaxSpeed) ? 300 : 600;
-                        Target = target;
-                        Speed = MaxSpeed;
-                        target.Runaway(this);
-                        break;
-                    }
-               }
-
-            ChaseTimer--;
-            if (ChaseTimer <= -100)
-                Tired = false;
-            if (ChaseTimer <= 300 && (DistanceToTarget < Global.ChargeDistance && Speed != MaxSpeed + Global.ChargeSpeedDelta))
-                Speed = MaxSpeed + Global.ChargeSpeedDelta;
-            if (ChaseTimer <= 0 && Target is Herbivore)
+            if (Hunger < 500)
             {
-                Target = new Point((int)X + Rand.Int(-200, 200), (int)Y + Rand.Int(-200, 200));
-                Speed = MinSpeed;
-                Tired = true;
-            }
+                var nearestHerbivore = Global.Objects
+                                .Where(cell => cell is Herbivore && Global.Distance(this, cell) < Global.SystemConfig.TargetingRadius && Size >= cell.Size)
+                                .OrderBy(cell => Global.Distance(this, cell))
+                                .FirstOrDefault() as Herbivore;
 
+                if (Target is Point && nearestHerbivore != null)
+                {
+                    Target = nearestHerbivore;
+                    nearestHerbivore.Runaway(this);
+                    Speed = (MaxSpeed + MinSpeed) / 2;
+                    TargetCaptured = true;
+                }
+                else if (Target is Herbivore)
+                {
+                    if ((Target as Herbivore).Size > Size)
+                        UnlockTarget();
+
+                    if (Hunger < 150 && Speed != MaxSpeed)
+                        Speed = MaxSpeed;
+
+                    if (TargetCaptured && Global.Distance(this, Target) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
+                        Speed = MaxSpeed + Global.ChargeSpeedDelta;
+                }
+            }
             base.AITick();
         }
 
+#if SHOW_HUNGER
+        public override void Die(bool allowReproduce = false)
+        {
+            Scene.RemoveGraphic(hungerText);
+            base.Die(allowReproduce);
+        }
+#endif
         public override void Update()
         {
+#if SHOW_HUNGER
+            Scene.RemoveGraphic(hungerText);
+            hungerText = new Text(Hunger.ToString(), 12);
+            Scene.AddGraphic(hungerText);
+            hungerText.X = X - 8;
+            hungerText.Y = Y - 15 - Size;
+#endif
             if (AITickCounter == 0)
             {
                 AITick();
                 AITickCounter = Global.AITickDelay;
-                Hunger--;
+                
             }
-            var nearestCells = (from cell in Global.Objects 
-                               where (cell is Herbivore && (Math.Sqrt(Math.Pow(X - cell.X, 2) + Math.Pow(Y - cell.Y, 2))) < 5 && cell.Size <= Size) 
-                               select cell).ToList();
-            foreach (var item in nearestCells)
+            Hunger--;
+
+            var nearestCell = Global.Objects
+                .Where(cell => cell is Herbivore && Global.Distance(cell, this) < Size*2 && cell.Size <= Size)
+                .OrderBy(cell => Global.Distance(cell, this))
+                .FirstOrDefault() as Herbivore;
+            if (nearestCell != null && Target == nearestCell)
             {
-                if (Target == item)
-                {
-                    Eat(item);
-                    ChaseTimer = 0;
-                }
-                else if (Rand.Float() >= 0.5)
-                    Eat(item);
-            } 
+                Eat(nearestCell);
+                UnlockTarget();
+            }
+
             dynamic currentTarget;
             if (Target is Point)
                 currentTarget = (Target as Point?).Value;
             else
-            { 
                 currentTarget = Target as Cell;
-                if (currentTarget.Size > Size)
-                    ChaseTimer = 0;
-            }
-            if ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y)
-                    {
-                        Target = Global.CreateRandomPoint();
-                        Speed = MinSpeed;
-                    }
+
+            if (currentTarget == null || ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y))
+                UnlockTarget();
             base.Update();
+        }
+
+        public void UnlockTarget()
+        {
+            Target = Global.CreateRandomPoint();
+            TargetCaptured = false;
+            Speed = MinSpeed;
         }
     }
 }

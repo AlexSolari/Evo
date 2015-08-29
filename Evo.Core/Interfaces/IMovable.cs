@@ -15,6 +15,5 @@ namespace Evo.Core.Interfaces
         double MinSpeed { get; set; }
         Vector2 Direction { get; set; }
         void Move();
-        void Rotate(float angle);
     }
 }

@@ -11,6 +11,6 @@ namespace Evo.Core.Interfaces
         int Age { get; set; }
         int Size { get; set; }
         int GrowLimit { get; set; }
-        void Die();
+        void Die(bool allowReproduce = false);
     }
 }

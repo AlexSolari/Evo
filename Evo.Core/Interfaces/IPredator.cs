@@ -8,6 +8,8 @@ namespace Evo.Core.Interfaces
 {
     public interface IPredator
     {
+        bool TargetCaptured { get; set; }
         void Eat(ILifeForm target);
+        void UnlockTarget();
     }
 }
