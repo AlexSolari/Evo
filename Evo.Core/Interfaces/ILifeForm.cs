@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evo.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,6 @@ namespace Evo.Core.Interfaces
         int Age { get; set; }
         int Size { get; set; }
         int GrowLimit { get; set; }
-        void Die(bool allowReproduce = false);
+        void Die(Cell.DyingReason reason);
     }
 }

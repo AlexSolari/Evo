@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Evo.Core.Interfaces
 {
-    interface IHerbivore
+    public interface IHerbivore
     {
         int GrowTimer { get; set; }
         void ResetGrowTimer();
-        void Runaway(Predator from);
+        void Runaway(Predator from, int chilloutTimer = 500);
         void Chill();
     }
 }

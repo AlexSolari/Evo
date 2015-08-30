@@ -74,7 +74,7 @@ namespace Evo.Core.Entities
                 Global.Objects.ToList().ForEach(cell => 
                 {
                     if (cell.Direction.Length == 0)
-                        cell.Die();
+                        cell.Die(Cell.DyingReason.RemovedByWatcher);
                 });
         }
     }

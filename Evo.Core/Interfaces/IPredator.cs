@@ -11,5 +11,6 @@ namespace Evo.Core.Interfaces
         bool TargetCaptured { get; set; }
         void Eat(ILifeForm target);
         void UnlockTarget();
+        void LockTarget(IHerbivore nearestHerbivore);
     }
 }

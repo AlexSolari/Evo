@@ -11,7 +11,8 @@ namespace Otter {
     /// <summary>
     /// Class used for a game object. The bread and butter of your game. Entities are added to Scenes which are controlled by the Game.
     /// </summary>
-    public class Entity {
+    public class Entity
+    {
 
         #region Private Fields
 
@@ -62,12 +63,12 @@ namespace Otter {
         /// <summary>
         /// The X position of the entity.
         /// </summary>
-        public float X;
+        public float X { get; set; }
 
         /// <summary>
         /// The Y position of the entity.
         /// </summary>
-        public float Y;
+        public float Y { get; set; }
 
         /// <summary>
         /// How long the entity has been active.

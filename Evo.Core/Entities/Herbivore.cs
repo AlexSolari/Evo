@@ -20,20 +20,20 @@ namespace Evo.Core.Entities
             : base(position, size, minspeed, maxspeed, Color.Green)
         {
             if (maxspeed > 3) maxspeed = 3;
-            GrowLimit = 5;
+            GrowLimit = 6;
             ResetGrowTimer();
         }
 
-        public override void Die(bool allowReproduce = false)
+        public override void Die(DyingReason reason)
         {
             if (Chaser != null)
                 Chaser.UnlockTarget();
-            base.Die(allowReproduce);
+            base.Die(reason);
         }
 
         public void ResetGrowTimer()
         {
-            GrowTimer = Rand.Int(30, 40);
+            GrowTimer = Rand.Int(20, 30);
         }
 
         public override void Grow(int value)
@@ -44,16 +44,6 @@ namespace Evo.Core.Entities
 
         public override void Reproduce()
         {
-            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
-            var maxCount = (herbivoresCount > 300) ? 1 : 3;
-            var countOfChilds = Rand.Int(1, maxCount);
-            for (int i = countOfChilds; i >= 0; i--)
-            {
-                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                var entity = new Herbivore(new Point(), Size/(countOfChilds + 2), Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
-                Scene.Add(entity);
-                entity.SetPosition(pos.X, pos.Y);
-            }
             if (Chaser != null)
                 Chaser.UnlockTarget();
             base.Reproduce();
@@ -61,13 +51,12 @@ namespace Evo.Core.Entities
 
         public override void AITick()
         {
-            var self = this;
             var nearestPredator = Global.Objects
-                .Where(x => x is Predator && (Math.Sqrt(Math.Pow(self.X - x.X, 2) + Math.Pow(self.Y - x.Y, 2))) < Global.SystemConfig.RanawayRadius)
-                .OrderByDescending(x => (Math.Sqrt(Math.Pow(self.X - x.X, 2) + Math.Pow(self.Y - x.Y, 2))))
+                .Where(x => x is Predator && Global.Distance(x, this) < Global.SystemConfig.RanawayRadius)
+                .OrderByDescending(x => Global.Distance(x, this))
                 .FirstOrDefault() as Predator;
             if (nearestPredator != null)
-                Runaway(nearestPredator);
+                Runaway(nearestPredator, 300);
             base.AITick();
         }
 
@@ -85,7 +74,7 @@ namespace Evo.Core.Entities
             }
             if (GrowTimer == 0)
             {
-                Grow(Rand.Int(1,3));
+                Grow(1);
             }
             else
                 GrowTimer--;
@@ -93,7 +82,7 @@ namespace Evo.Core.Entities
             base.Update();
         }
 
-        public void Runaway(Predator chaser)
+        public void Runaway(Predator chaser, int chilloutTimer = 500)
         {
             this.Target = new Point()
             {
@@ -102,7 +91,7 @@ namespace Evo.Core.Entities
             };
             Speed = MaxSpeed;
             Chaser = chaser;
-            ChilloutTimer = (ChilloutTimer <= 0) ? 500 : ChilloutTimer;
+            ChilloutTimer = chilloutTimer;
         }
 
         public void Chill()
@@ -110,6 +99,20 @@ namespace Evo.Core.Entities
             if (Chaser != null)
                 Chaser = null;
             Speed = MinSpeed;
+        }
+
+        public override void CreateChilds()
+        {
+            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
+            var maxCount = (herbivoresCount > 300) ? 1 : 3;
+            var countOfChilds = Rand.Int(1, maxCount);
+            for (int i = countOfChilds; i >= 0; i--)
+            {
+                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
+                var entity = new Herbivore(new Point(), Size / (countOfChilds + 2), Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
+                Scene.Add(entity);
+                entity.SetPosition(pos.X, pos.Y);
+            }
         }
     }
 }

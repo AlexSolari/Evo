@@ -11,7 +11,7 @@ using Evo.Core.Debugging;
 
 namespace Evo.Core.Entities
 {
-    class Predator : Cell, IPredator
+    public class Predator : Cell, IPredator
     {
 #if SHOW_HUNGER
         Graphic hungerText;
@@ -28,16 +28,10 @@ namespace Evo.Core.Entities
 #endif
             TargetCaptured = false;
             Hunger = 300;
-            GrowLimit = 6;
+            GrowLimit = 5;
         }
         public override void Reproduce()
         {
-            var countOfChilds = Rand.Int(3);
-            for (int i = 0; i < countOfChilds; i++)
-            {
-                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                Scene.Add(new Predator(pos, Size/countOfChilds, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + 1));
-            }
             Hunger = 500;
             base.Reproduce();
         }
@@ -45,18 +39,21 @@ namespace Evo.Core.Entities
         public void Eat(ILifeForm target)
         {
             Hunger += 20 * target.Size;
-            Grow((int)Math.Ceiling(1.5 * target.Size / Size));
-            target.Die();
+            Grow((int)Math.Ceiling(1.1 * target.Size / Size));
+            target.Die(DyingReason.Eaten);
         }
 
         public override void AITick()
         {
+            if (Target is Point)
+                TargetCaptured = false;
+
             if (Hunger <= 0)
             { 
-                Die();
+                Die(DyingReason.Hunger);
                 return;
             }
-
+            
             if (Hunger < 500)
             {
                 var nearestHerbivore = Global.Objects
@@ -64,22 +61,22 @@ namespace Evo.Core.Entities
                                 .OrderBy(cell => Global.Distance(this, cell))
                                 .FirstOrDefault() as Herbivore;
 
-                if (Target is Point && nearestHerbivore != null)
+                if (!TargetCaptured && nearestHerbivore != null)
                 {
-                    Target = nearestHerbivore;
-                    nearestHerbivore.Runaway(this);
-                    Speed = (MaxSpeed + MinSpeed) / 2;
-                    TargetCaptured = true;
+                    LockTarget(nearestHerbivore);
                 }
-                else if (Target is Herbivore)
+                else if (TargetCaptured)
                 {
+                    if (nearestHerbivore != null && Global.Distance(this, nearestHerbivore) < Global.Distance(this, Target) * 1.5)
+                        LockTarget(nearestHerbivore);
+
                     if ((Target as Herbivore).Size > Size)
                         UnlockTarget();
 
-                    if (Hunger < 150 && Speed != MaxSpeed)
+                    if (Hunger < 150 && Speed < MaxSpeed)
                         Speed = MaxSpeed;
 
-                    if (TargetCaptured && Global.Distance(this, Target) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
+                    if (Global.Distance(this, Target) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
                         Speed = MaxSpeed + Global.ChargeSpeedDelta;
                 }
             }
@@ -87,10 +84,10 @@ namespace Evo.Core.Entities
         }
 
 #if SHOW_HUNGER
-        public override void Die(bool allowReproduce = false)
+        public override void Die(DyingReason reason)
         {
             Scene.RemoveGraphic(hungerText);
-            base.Die(allowReproduce);
+            base.Die(reason);
         }
 #endif
         public override void Update()
@@ -111,7 +108,7 @@ namespace Evo.Core.Entities
             Hunger--;
 
             var nearestCell = Global.Objects
-                .Where(cell => cell is Herbivore && Global.Distance(cell, this) < Size*2 && cell.Size <= Size)
+                .Where(cell => cell is Herbivore && Global.Distance(cell, this) < Size && cell.Size <= Size)
                 .OrderBy(cell => Global.Distance(cell, this))
                 .FirstOrDefault() as Herbivore;
             if (nearestCell != null && Target == nearestCell)
@@ -126,7 +123,7 @@ namespace Evo.Core.Entities
             else
                 currentTarget = Target as Cell;
 
-            if (currentTarget == null || ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y))
+            if (Target == null || ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y))
                 UnlockTarget();
             base.Update();
         }
@@ -136,6 +133,24 @@ namespace Evo.Core.Entities
             Target = Global.CreateRandomPoint();
             TargetCaptured = false;
             Speed = MinSpeed;
+        }
+
+        public override void CreateChilds()
+        {
+            var countOfChilds = 1;
+            for (int i = 0; i < countOfChilds; i++)
+            {
+                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
+                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + 1));
+            }
+        }
+
+        public void LockTarget(IHerbivore nearestHerbivore)
+        {
+            Target = nearestHerbivore;
+            nearestHerbivore.Runaway(this);
+            Speed = (MaxSpeed + MinSpeed) / 2;
+            TargetCaptured = true;
         }
     }
 }

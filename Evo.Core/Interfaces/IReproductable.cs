@@ -9,5 +9,6 @@ namespace Evo.Core.Interfaces
     public interface IReproductable
     {
         void Reproduce();
+        void CreateChilds();
     }
 }

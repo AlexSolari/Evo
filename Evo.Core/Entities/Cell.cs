@@ -12,6 +12,14 @@ namespace Evo.Core.Entities
 {
     public abstract class Cell : Entity, ILifeForm, IReproductable, IMovable, IGrowable, IAIControllable
     {
+        public enum DyingReason
+        {
+            Hunger,
+            Time,
+            Overpopulation,
+            Eaten,
+            RemovedByWatcher
+        }
         public int AITickCounter { get; set; }
         public Graphic Sprite { get; set; }
         public Color SpriteColor { get; set; }
@@ -52,19 +60,18 @@ namespace Evo.Core.Entities
             RemoveSelf();
         }
         
-        public virtual void Die(bool allowReproduce = false)
+        public virtual void Die(DyingReason reason)
         {
-            if (allowReproduce)
-                Reproduce();
+            if (reason == DyingReason.Time)
+                CreateChilds();
             Global.Objects.Remove(this);
             Destroy();
         }
 
         public virtual void Reproduce()
         {
+            CreateChilds();
             Age += 1;
-            if (Age > 3)
-                Die();
         }
 
         public void Move()
@@ -95,16 +102,13 @@ namespace Evo.Core.Entities
 
         public virtual void Grow(int value)
         {
+            Graphic.Scale = 2 * (float)(Size + value) / Size;
             Size += value;
-            Sprite = Image.CreateCircle(Size/2, SpriteColor);
-            Graphic = Sprite;
             Graphic.CenterOrigin();
 
-            var reproduceOnDeath = Global.Objects.Count < 400;
-
             if (Size > GrowLimit * 2)
-                Die(reproduceOnDeath);
-            if (Size > GrowLimit && Global.Objects.Count < 300)
+                Die(DyingReason.Overpopulation);
+            if (Size > GrowLimit && Global.Objects.Count < 500)
                 Reproduce();
         }
 
@@ -127,5 +131,7 @@ namespace Evo.Core.Entities
             Move();
             AITickCounter--;
         }
+
+        public abstract void CreateChilds();
     }
 }
