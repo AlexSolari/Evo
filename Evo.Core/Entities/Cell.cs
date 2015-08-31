@@ -51,8 +51,6 @@ namespace Evo.Core.Entities
             Graphic.CenterOrigin();
             X = position.X;
             Y = position.Y;
-
-            Global.Objects.Add(this);
         }
 
         public void Destroy()
@@ -64,7 +62,6 @@ namespace Evo.Core.Entities
         {
             if (reason == DyingReason.Time)
                 CreateChilds();
-            Global.Objects.Remove(this);
             Destroy();
         }
 
@@ -102,13 +99,13 @@ namespace Evo.Core.Entities
 
         public virtual void Grow(int value)
         {
-            Graphic.Scale = 2 * (float)(Size + value) / Size;
             Size += value;
+            Graphic = Image.CreateCircle(Size / 2, SpriteColor);
             Graphic.CenterOrigin();
 
             if (Size > GrowLimit * 2)
                 Die(DyingReason.Overpopulation);
-            if (Size > GrowLimit && Global.Objects.Count < 500)
+            if (Size > GrowLimit && Global.Herbivores.Union(Global.Predators).Count() < Global.CellsLimit)
                 Reproduce();
         }
 

@@ -16,7 +16,10 @@ namespace Evo.Core
 
         public const int ChargeDistance = 200;
         public const int ChargeSpeedDelta = 2;
-        public static List<Cell> Objects = new List<Cell>();
+        public static List<Cell> Herbivores = new List<Cell>();
+        public static List<Cell> Predators = new List<Cell>();
+        public static int HerbivoresLimit = 400;
+        public static int CellsLimit = 500;
 
         public static int AITickDelay {
             get 
@@ -41,10 +44,18 @@ namespace Evo.Core
             return Math.Abs(x1 - x2) < 10;
         }
 
-        public static double Distance(dynamic a, dynamic b)
+        public static double DistanceSquared(Cell a, Cell b)
         {
-            return (Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2)));
+            if (a == null || b == null)
+                return 0;
+            return (b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y);
         }
+
+        public static double Distance(Cell a, Cell b)
+        {
+            return Math.Sqrt(DistanceSquared(a,b));
+        }
+
 
         public static Point CreateRandomPoint()
         {
@@ -53,20 +64,24 @@ namespace Evo.Core
 
         public static double GetRandomMaxSpeed(Type typeOfTarget)
         {
-            var list = from cell in Objects
+            var list = from cell in Global.Herbivores.Union(Global.Predators)
                                 where cell.GetType() == typeOfTarget
                                 select cell.MaxSpeed;
+            if (list.Count() == 0)
+                return 0;
             double result = list.Sum() / list.Count();
-            return Math.Ceiling(result + 1);
+            return Math.Ceiling(result + Rand.Int(2));
         }
 
         public static double GetRandomMinSpeed(Type typeOfTarget)
         {
-            var list = from cell in Objects
+            var list = from cell in Global.Herbivores.Union(Global.Predators)
                        where cell.GetType() == typeOfTarget
                        select cell.MinSpeed;
+            if (list.Count() == 0)
+                return 0;
             double result = list.Sum() / list.Count();
-            return (int)Math.Ceiling(result);
+            return Math.Ceiling(result);
         }
     }
 }

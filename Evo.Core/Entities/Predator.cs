@@ -29,6 +29,7 @@ namespace Evo.Core.Entities
             TargetCaptured = false;
             Hunger = 300;
             GrowLimit = 5;
+            Global.Predators.Add(this);
         }
         public override void Reproduce()
         {
@@ -52,13 +53,12 @@ namespace Evo.Core.Entities
             { 
                 Die(DyingReason.Hunger);
                 return;
-            }
-            
+            }   
             if (Hunger < 500)
             {
-                var nearestHerbivore = Global.Objects
-                                .Where(cell => cell is Herbivore && Global.Distance(this, cell) < Global.SystemConfig.TargetingRadius && Size >= cell.Size)
-                                .OrderBy(cell => Global.Distance(this, cell))
+                var nearestHerbivore = Global.Herbivores
+                                .Where(cell => Global.DistanceSquared(this, cell) < Global.SystemConfig.TargetingRadius * Global.SystemConfig.TargetingRadius && Size >= cell.Size)
+                                .OrderBy(cell => Global.DistanceSquared(this, cell))
                                 .FirstOrDefault() as Herbivore;
 
                 if (!TargetCaptured && nearestHerbivore != null)
@@ -67,7 +67,7 @@ namespace Evo.Core.Entities
                 }
                 else if (TargetCaptured)
                 {
-                    if (nearestHerbivore != null && Global.Distance(this, nearestHerbivore) < Global.Distance(this, Target) * 1.5)
+                    if (nearestHerbivore != null && Global.Distance(this, nearestHerbivore) < Global.Distance(this, Target as Herbivore) * 1.5)
                         LockTarget(nearestHerbivore);
 
                     if ((Target as Herbivore).Size > Size)
@@ -76,22 +76,26 @@ namespace Evo.Core.Entities
                     if (Hunger < 150 && Speed < MaxSpeed)
                         Speed = MaxSpeed;
 
-                    if (Global.Distance(this, Target) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
+                    if (Global.Distance(this, Target as Herbivore) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
                         Speed = MaxSpeed + Global.ChargeSpeedDelta;
                 }
             }
             base.AITick();
         }
 
-#if SHOW_HUNGER
+
         public override void Die(DyingReason reason)
         {
+#if SHOW_HUNGER
             Scene.RemoveGraphic(hungerText);
+#endif
+            Global.Predators.Remove(this);
             base.Die(reason);
         }
-#endif
+
         public override void Update()
         {
+
 #if SHOW_HUNGER
             Scene.RemoveGraphic(hungerText);
             hungerText = new Text(Hunger.ToString(), 12);
@@ -106,14 +110,16 @@ namespace Evo.Core.Entities
                 
             }
             Hunger--;
+            
+            
 
-            var nearestCell = Global.Objects
-                .Where(cell => cell is Herbivore && Global.Distance(cell, this) < Size && cell.Size <= Size)
-                .OrderBy(cell => Global.Distance(cell, this))
+            var nearestHerbivore = Global.Herbivores
+                .Where(cell => Global.DistanceSquared(cell, this) < Size*Size && cell.Size <= Size)
+                .OrderBy(cell => Global.DistanceSquared(cell, this))
                 .FirstOrDefault() as Herbivore;
-            if (nearestCell != null && Target == nearestCell)
+            if (nearestHerbivore != null && Target == nearestHerbivore)
             {
-                Eat(nearestCell);
+                Eat(nearestHerbivore);
                 UnlockTarget();
             }
 
@@ -126,6 +132,7 @@ namespace Evo.Core.Entities
             if (Target == null || ((int)currentTarget.X == (int)X && (int)currentTarget.Y == (int)Y))
                 UnlockTarget();
             base.Update();
+
         }
 
         public void UnlockTarget()

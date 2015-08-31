@@ -38,12 +38,12 @@ namespace Evo.Core.Entities
                 if (EndTimer < 0)
                 {
                     Console.WriteLine("Cycle ended");
-                    if (Global.Objects.Where(x => x is Herbivore).Count() != 0)
+                    if (Global.Herbivores.Count() != 0)
                     {
                         CountOfResults["Green"]++;
                         Console.WriteLine("All predators died from hunger");
                     }
-                    else if (Global.Objects.Where(x => x is Predator).Count() != 0)
+                    else if (Global.Predators.Count() != 0)
                     {
                         CountOfResults["Red"]++;
                         Console.WriteLine("All herbivores eaten.");
@@ -56,13 +56,14 @@ namespace Evo.Core.Entities
                     {
                         item.Destroy();
                     }
-                    Global.Objects.Clear();
+                    Global.Predators.Clear();
+                    Global.Herbivores.Clear();
                     Game.AddScene(new GameScene(this));
                     Scene.End();
                     
                 }
             }
-            else if (Global.Objects.Where(x => x is Predator).Count() == 0 || Global.Objects.Where(x => x is Herbivore).Count() == 0)
+            else if (Global.Predators.Count() == 0 || Global.Herbivores.Count() == 0)
             {
                 EndTimer = 100;
                 EndInitiated = true;
@@ -71,7 +72,7 @@ namespace Evo.Core.Entities
             else Ticks++;
 
             if (Ticks % 500 == 0)
-                Global.Objects.ToList().ForEach(cell => 
+                Global.Herbivores.Union(Global.Predators).ToList().ForEach(cell => 
                 {
                     if (cell.Direction.Length == 0)
                         cell.Die(Cell.DyingReason.RemovedByWatcher);

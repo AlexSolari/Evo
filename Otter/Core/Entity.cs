@@ -63,12 +63,12 @@ namespace Otter {
         /// <summary>
         /// The X position of the entity.
         /// </summary>
-        public float X { get; set; }
+        public float X = 0;
 
         /// <summary>
         /// The Y position of the entity.
         /// </summary>
-        public float Y { get; set; }
+        public float Y = 0;
 
         /// <summary>
         /// How long the entity has been active.

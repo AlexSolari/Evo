@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Evo.Core.Entities
 {
-    class Herbivore : Cell, IHerbivore
+    public class Herbivore : Cell, IHerbivore
     {
         IPredator Chaser = null;
         public int GrowTimer { get; set; }
@@ -22,12 +22,14 @@ namespace Evo.Core.Entities
             if (maxspeed > 3) maxspeed = 3;
             GrowLimit = 6;
             ResetGrowTimer();
+            Global.Herbivores.Add(this);
         }
 
         public override void Die(DyingReason reason)
         {
             if (Chaser != null)
                 Chaser.UnlockTarget();
+            Global.Herbivores.Remove(this);
             base.Die(reason);
         }
 
@@ -51,12 +53,15 @@ namespace Evo.Core.Entities
 
         public override void AITick()
         {
-            var nearestPredator = Global.Objects
-                .Where(x => x is Predator && Global.Distance(x, this) < Global.SystemConfig.RanawayRadius)
-                .OrderByDescending(x => Global.Distance(x, this))
-                .FirstOrDefault() as Predator;
-            if (nearestPredator != null)
-                Runaway(nearestPredator, 300);
+            if (Chaser != null)
+            {
+                var nearestPredator = Global.Predators
+                .Where(x => Global.DistanceSquared(x, this) < Global.SystemConfig.RanawayRadius)
+                .OrderBy(x => Global.DistanceSquared(x, this))
+                .FirstOrDefault();
+                if (nearestPredator != null)
+                    Runaway(nearestPredator as Predator, 300);
+            }
             base.AITick();
         }
 
@@ -103,13 +108,12 @@ namespace Evo.Core.Entities
 
         public override void CreateChilds()
         {
-            var herbivoresCount = Global.Objects.Where(x => x is Herbivore).Count();
-            var maxCount = (herbivoresCount > 300) ? 1 : 3;
-            var countOfChilds = Rand.Int(1, maxCount);
+            var herbivoresCount = Global.Herbivores.Count();
+            var countOfChilds = (herbivoresCount > Global.HerbivoresLimit) ? 1 : 7;
             for (int i = countOfChilds; i >= 0; i--)
             {
                 var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                var entity = new Herbivore(new Point(), Size / (countOfChilds + 2), Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
+                var entity = new Herbivore(new Point(), 2, Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
                 Scene.Add(entity);
                 entity.SetPosition(pos.X, pos.Y);
             }
