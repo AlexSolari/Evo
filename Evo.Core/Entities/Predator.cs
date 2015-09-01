@@ -37,7 +37,7 @@ namespace Evo.Core.Entities
             base.Reproduce();
         }
 
-        public void Eat(ILifeForm target)
+        public void Eat(Cell target)
         {
             Hunger += 20 * target.Size;
             Grow((int)Math.Ceiling(1.1 * target.Size / Size));
@@ -67,7 +67,7 @@ namespace Evo.Core.Entities
                 }
                 else if (TargetCaptured)
                 {
-                    if (nearestHerbivore != null && Global.Distance(this, nearestHerbivore) < Global.Distance(this, Target as Herbivore) * 1.5)
+                    if (nearestHerbivore != null && Global.DistanceSquared(this, nearestHerbivore) < Global.DistanceSquared(this, Target as Herbivore) * 1.5)
                         LockTarget(nearestHerbivore);
 
                     if ((Target as Herbivore).Size > Size)
@@ -76,7 +76,7 @@ namespace Evo.Core.Entities
                     if (Hunger < 150 && Speed < MaxSpeed)
                         Speed = MaxSpeed;
 
-                    if (Global.Distance(this, Target as Herbivore) < Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
+                    if (Global.DistanceSquared(this, Target as Herbivore) < Global.ChargeDistance * Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
                         Speed = MaxSpeed + Global.ChargeSpeedDelta;
                 }
             }
@@ -148,7 +148,7 @@ namespace Evo.Core.Entities
             for (int i = 0; i < countOfChilds; i++)
             {
                 var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                Scene.Add(new Predator(pos, 4, Global.GetRandomMinSpeed(typeof(Predator)), Global.GetRandomMaxSpeed(typeof(Predator)) + 1));
+                Scene.Add(new Predator(pos, 4, Global.GetValue(typeof(Herbivore), x => x.MinSpeed), Global.GetValue(typeof(Herbivore), x => x.MaxSpeed) + 1));
             }
         }
 

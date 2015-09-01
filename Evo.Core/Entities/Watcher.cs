@@ -63,7 +63,7 @@ namespace Evo.Core.Entities
                     
                 }
             }
-            else if (Global.Predators.Count() == 0 || Global.Herbivores.Count() == 0)
+            else if (Global.Predators.Count == 0 || Global.Herbivores.Count == 0)
             {
                 EndTimer = 100;
                 EndInitiated = true;

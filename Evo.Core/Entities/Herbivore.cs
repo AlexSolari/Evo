@@ -113,7 +113,7 @@ namespace Evo.Core.Entities
             for (int i = countOfChilds; i >= 0; i--)
             {
                 var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                var entity = new Herbivore(new Point(), 2, Global.GetRandomMinSpeed(typeof(Herbivore)), Global.GetRandomMaxSpeed(typeof(Herbivore)));
+                var entity = new Herbivore(new Point(), 2, Global.GetValue(typeof(Herbivore), x=>x.MinSpeed), Global.GetValue(typeof(Herbivore), x=>x.MaxSpeed));
                 Scene.Add(entity);
                 entity.SetPosition(pos.X, pos.Y);
             }

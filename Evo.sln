@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo.Config", "Evo.Config\Ev
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F69D5C10-9FE9-42B5-A498-760EC0D75A68}"
 	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
+		Performance.psess = Performance.psess
 	EndProjectSection
 EndProject
 Global

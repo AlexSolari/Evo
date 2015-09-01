@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evo.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace Evo.Core.Interfaces
     public interface IPredator
     {
         bool TargetCaptured { get; set; }
-        void Eat(ILifeForm target);
+        void Eat(Cell target);
         void UnlockTarget();
         void LockTarget(IHerbivore nearestHerbivore);
     }

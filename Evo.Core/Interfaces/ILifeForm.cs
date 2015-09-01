@@ -10,7 +10,6 @@ namespace Evo.Core.Interfaces
     public interface ILifeForm
     {
         int Age { get; set; }
-        int Size { get; set; }
         int GrowLimit { get; set; }
         void Die(Cell.DyingReason reason);
     }

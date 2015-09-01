@@ -30,13 +30,11 @@ namespace Evo.Core
 
         public static void ReduceVector(ref Vector2 vector, float limit, float epsilon = 0.1f)
         {
-            while (vector.Length > limit + epsilon)
+            while (vector.LengthSquared() > (limit + epsilon) * (limit + epsilon))
             {
                 vector.X *= 0.9f;
                 vector.Y *= 0.9f;
             }
-            if (Math.Abs(vector.X) < epsilon) vector.X = 0;
-            if (Math.Abs(vector.Y) < epsilon) vector.Y = 0;
         }
 
         public static bool IsNear(float x1, float x2)
@@ -51,37 +49,16 @@ namespace Evo.Core
             return (b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y);
         }
 
-        public static double Distance(Cell a, Cell b)
-        {
-            return Math.Sqrt(DistanceSquared(a,b));
-        }
-
-
         public static Point CreateRandomPoint()
         {
             return new Point(Rand.Int(Global.Width), Rand.Int(Global.Height));
         }
 
-        public static double GetRandomMaxSpeed(Type typeOfTarget)
+        public static double GetValue(Type typeOfTarget, Func<Cell, double> extract)
         {
-            var list = from cell in Global.Herbivores.Union(Global.Predators)
-                                where cell.GetType() == typeOfTarget
-                                select cell.MaxSpeed;
-            if (list.Count() == 0)
-                return 0;
-            double result = list.Sum() / list.Count();
-            return Math.Ceiling(result + Rand.Int(2));
-        }
-
-        public static double GetRandomMinSpeed(Type typeOfTarget)
-        {
-            var list = from cell in Global.Herbivores.Union(Global.Predators)
-                       where cell.GetType() == typeOfTarget
-                       select cell.MinSpeed;
-            if (list.Count() == 0)
-                return 0;
-            double result = list.Sum() / list.Count();
-            return Math.Ceiling(result);
+            var source = (typeOfTarget == typeof(Herbivore)) ? Global.Herbivores : Global.Predators;
+            var list = from cell in source select extract(cell);
+            return list.Average();
         }
     }
 }

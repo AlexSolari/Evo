@@ -24,7 +24,7 @@ namespace Evo.Core.Entities
         public Graphic Sprite { get; set; }
         public Color SpriteColor { get; set; }
         public int Age { get; set; }
-        public int Size { get; set; }
+        public int Size;
         public Vector2 Direction { get; set; }
         public double MaxSpeed { get; set; }
         public double MinSpeed { get; set; }
@@ -105,7 +105,7 @@ namespace Evo.Core.Entities
 
             if (Size > GrowLimit * 2)
                 Die(DyingReason.Overpopulation);
-            if (Size > GrowLimit && Global.Herbivores.Union(Global.Predators).Count() < Global.CellsLimit)
+            if (Size > GrowLimit && Global.Herbivores.Count + Global.Predators.Count < Global.CellsLimit)
                 Reproduce();
         }
 
