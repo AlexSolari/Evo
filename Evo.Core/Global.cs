@@ -1,4 +1,5 @@
 ﻿using Evo.Core.Entities;
+using Evo.Core.Interfaces;
 using Otter;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,8 @@ namespace Evo.Core
 
         public const int ChargeDistance = 200;
         public const int ChargeSpeedDelta = 2;
-        public static List<Cell> Herbivores = new List<Cell>();
-        public static List<Cell> Predators = new List<Cell>();
+        public static List<ILifeForm> Herbivores = new List<ILifeForm>();
+        public static List<ILifeForm> Predators = new List<ILifeForm>();
         public static int HerbivoresLimit = 400;
         public static int CellsLimit = 500;
 
@@ -42,11 +43,11 @@ namespace Evo.Core
             return Math.Abs(x1 - x2) < 10;
         }
 
-        public static double DistanceSquared(Cell a, Cell b)
+        public static double DistanceSquared(ILifeForm a, ILifeForm b)
         {
             if (a == null || b == null)
                 return 0;
-            return (b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y);
+            return (b.GetX() - a.GetX()) * (b.GetX() - a.GetX()) + (b.GetY() - a.GetY()) * (b.GetY() - a.GetY());
         }
 
         public static Point CreateRandomPoint()
@@ -54,7 +55,7 @@ namespace Evo.Core
             return new Point(Rand.Int(Global.Width), Rand.Int(Global.Height));
         }
 
-        public static double GetValue(Type typeOfTarget, Func<Cell, double> extract)
+        public static double GetValue(Type typeOfTarget, Func<ILifeForm, double> extract)
         {
             var source = (typeOfTarget == typeof(Herbivore)) ? Global.Herbivores : Global.Predators;
             var list = from cell in source select extract(cell);

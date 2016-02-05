@@ -9,6 +9,8 @@ namespace Evo.Core.Interfaces
 {
     public interface IMovable
     {
+        float GetX();
+        float GetY();
         object Target { get; set; }
         double Speed { get; set; }
         double MaxSpeed { get; set; }

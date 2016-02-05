@@ -37,7 +37,7 @@ namespace Evo.Core.Entities
             base.Reproduce();
         }
 
-        public void Eat(Cell target)
+        public void Eat(ILifeForm target)
         {
             Hunger += 20 * target.Size;
             Grow((int)Math.Ceiling(1.1 * target.Size / Size));
@@ -59,7 +59,7 @@ namespace Evo.Core.Entities
                 var nearestHerbivore = Global.Herbivores
                                 .Where(cell => Global.DistanceSquared(this, cell) < Global.SystemConfig.TargetingRadius * Global.SystemConfig.TargetingRadius && Size >= cell.Size)
                                 .OrderBy(cell => Global.DistanceSquared(this, cell))
-                                .FirstOrDefault() as Herbivore;
+                                .FirstOrDefault() as IHerbivore;
 
                 if (!TargetCaptured && nearestHerbivore != null)
                 {
@@ -67,7 +67,9 @@ namespace Evo.Core.Entities
                 }
                 else if (TargetCaptured)
                 {
-                    if (nearestHerbivore != null && Global.DistanceSquared(this, nearestHerbivore) < Global.DistanceSquared(this, Target as Herbivore) * 1.5)
+                    var distance = Global.DistanceSquared(this, Target as IHerbivore);
+
+                    if (nearestHerbivore != null && Global.DistanceSquared(this, nearestHerbivore) < distance * 1.5)
                         LockTarget(nearestHerbivore);
 
                     if ((Target as Herbivore).Size > Size)
@@ -76,7 +78,7 @@ namespace Evo.Core.Entities
                     if (Hunger < 150 && Speed < MaxSpeed)
                         Speed = MaxSpeed;
 
-                    if (Global.DistanceSquared(this, Target as Herbivore) < Global.ChargeDistance * Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
+                    if (distance < Global.ChargeDistance * Global.ChargeDistance && Speed < MaxSpeed + Global.ChargeSpeedDelta)
                         Speed = MaxSpeed + Global.ChargeSpeedDelta;
                 }
             }
@@ -116,7 +118,7 @@ namespace Evo.Core.Entities
             var nearestHerbivore = Global.Herbivores
                 .Where(cell => Global.DistanceSquared(cell, this) < Size*Size && cell.Size <= Size)
                 .OrderBy(cell => Global.DistanceSquared(cell, this))
-                .FirstOrDefault() as Herbivore;
+                .FirstOrDefault() as IHerbivore;
             if (nearestHerbivore != null && Target == nearestHerbivore)
             {
                 Eat(nearestHerbivore);

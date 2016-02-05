@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Evo.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Evo.Core.Interfaces
 {
     public interface IReproductable
     {
+        void Die(Cell.DyingReason reason);
         void Reproduce();
         void CreateChilds();
     }

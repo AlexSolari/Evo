@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Evo.Core.Interfaces
 {
-    public interface ILifeForm
+    public interface ILifeForm : IMovable, IGrowable, IReproductable, IAIControllable
     {
-        int Age { get; set; }
-        int GrowLimit { get; set; }
-        void Die(Cell.DyingReason reason);
+        
     }
 }

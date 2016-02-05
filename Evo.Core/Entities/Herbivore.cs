@@ -60,7 +60,7 @@ namespace Evo.Core.Entities
                 .OrderBy(x => Global.DistanceSquared(x, this))
                 .FirstOrDefault();
                 if (nearestPredator != null)
-                    Runaway(nearestPredator as Predator, 300);
+                    Runaway(nearestPredator as IPredator, 300);
             }
             base.AITick();
         }
@@ -87,12 +87,12 @@ namespace Evo.Core.Entities
             base.Update();
         }
 
-        public void Runaway(Predator chaser, int chilloutTimer = 500)
+        public void Runaway(IPredator chaser, int chilloutTimer = 500)
         {
             this.Target = new Point()
             {
-                X = Convert.ToInt32(X + (X - chaser.X)*1.33),
-                Y = Convert.ToInt32(Y + (Y - chaser.Y)*1.33)
+                X = Convert.ToInt32(X + (X - chaser.GetX())*1.33),
+                Y = Convert.ToInt32(Y + (Y - chaser.GetY())*1.33)
             };
             Speed = MaxSpeed;
             Chaser = chaser;

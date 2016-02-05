@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Evo.Core.Entities
 {
-    public abstract class Cell : Entity, ILifeForm, IReproductable, IMovable, IGrowable, IAIControllable
+    public abstract class Cell : Entity, ILifeForm
     {
         public enum DyingReason
         {
@@ -24,13 +24,18 @@ namespace Evo.Core.Entities
         public Graphic Sprite { get; set; }
         public Color SpriteColor { get; set; }
         public int Age { get; set; }
-        public int Size;
+        public int Size { get; set; }
         public Vector2 Direction { get; set; }
         public double MaxSpeed { get; set; }
         public double MinSpeed { get; set; }
         public double Speed { get; set; }
         public object Target { get; set; }
         public int GrowLimit { get; set; }
+
+        public float GetX() { return X; }
+
+        public float GetY() { return Y; }
+
         public Cell(Point position, int size = 2, double minSpeed = 1, double maxSpeed = 1, Color spriteColor = null)
         {
             var rnd = new Random();
@@ -86,7 +91,7 @@ namespace Evo.Core.Entities
             if (Target is Point)
                 currentTarget = (Target as Point?).Value;
             else
-                currentTarget = Target as Cell;
+                currentTarget = Target as ILifeForm;
             var tmp = new Vector2(currentTarget.X - X, currentTarget.Y - Y);
 
             Global.ReduceVector(ref tmp, (float)Speed);

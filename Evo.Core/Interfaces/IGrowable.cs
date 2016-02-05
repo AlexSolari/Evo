@@ -8,6 +8,9 @@ namespace Evo.Core.Interfaces
 {
     public interface IGrowable
     {
+        int Age { get; set; }
+        int GrowLimit { get; set; }
+        int Size { get; set; }
         void Grow(int value);
     }
 }

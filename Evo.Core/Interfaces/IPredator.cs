@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Evo.Core.Interfaces
 {
-    public interface IPredator
+    public interface IPredator : ILifeForm
     {
         bool TargetCaptured { get; set; }
-        void Eat(Cell target);
+        void Eat(ILifeForm target);
         void UnlockTarget();
         void LockTarget(IHerbivore nearestHerbivore);
     }
