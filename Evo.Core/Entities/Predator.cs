@@ -57,8 +57,8 @@ namespace Evo.Core.Entities
             if (Hunger < 500)
             {
                 var nearestHerbivore = Global.Herbivores
-                                .Where(cell => Global.DistanceSquared(this, cell) < Global.SystemConfig.TargetingRadius * Global.SystemConfig.TargetingRadius && Size >= cell.Size)
-                                .OrderBy(cell => Global.DistanceSquared(this, cell))
+                                .Where(cell => Global.SquaredDistances[this][cell] < Global.SystemConfig.TargetingRadius * Global.SystemConfig.TargetingRadius && Size >= cell.Size)
+                                .OrderBy(cell => Global.SquaredDistances[this][cell])
                                 .FirstOrDefault() as IHerbivore;
 
                 if (!TargetCaptured && nearestHerbivore != null)
@@ -67,9 +67,9 @@ namespace Evo.Core.Entities
                 }
                 else if (TargetCaptured)
                 {
-                    var distance = Global.DistanceSquared(this, Target as IHerbivore);
+                    var distance = Global.SquaredDistances[this][Target as IHerbivore];
 
-                    if (nearestHerbivore != null && Global.DistanceSquared(this, nearestHerbivore) < distance * 1.5)
+                    if (nearestHerbivore != null && Global.SquaredDistances[this][nearestHerbivore] < distance * 1.5)
                         LockTarget(nearestHerbivore);
 
                     if ((Target as Herbivore).Size > Size)
@@ -116,8 +116,8 @@ namespace Evo.Core.Entities
             
 
             var nearestHerbivore = Global.Herbivores
-                .Where(cell => Global.DistanceSquared(cell, this) < Size*Size && cell.Size <= Size)
-                .OrderBy(cell => Global.DistanceSquared(cell, this))
+                .Where(cell => Global.SquaredDistances[this][cell] < Size*Size && cell.Size <= Size)
+                .OrderBy(cell => Global.SquaredDistances[this][cell])
                 .FirstOrDefault() as IHerbivore;
             if (nearestHerbivore != null && Target == nearestHerbivore)
             {
@@ -146,12 +146,15 @@ namespace Evo.Core.Entities
 
         public override void CreateChilds()
         {
-            var countOfChilds = 1;
-            for (int i = 0; i < countOfChilds; i++)
-            {
-                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                Scene.Add(new Predator(pos, 4, Global.GetValue(typeof(Herbivore), x => x.MinSpeed), Global.GetValue(typeof(Herbivore), x => x.MaxSpeed) + 1));
-            }
+            var scene = Scene;
+            Global.PendingActions.Add(() => {
+                var countOfChilds = 1;
+                for (int i = 0; i < countOfChilds; i++)
+                {
+                    var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
+                    scene.Add(new Predator(pos, 4, MinSpeed, MaxSpeed));
+                }
+            });
         }
 
         public void LockTarget(IHerbivore nearestHerbivore)

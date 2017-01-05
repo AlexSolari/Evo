@@ -53,14 +53,9 @@ namespace Evo.Core.Entities
 
         public override void AITick()
         {
-            if (Chaser != null)
+            if (Chaser != null && Chaser.Alive)
             {
-                var nearestPredator = Global.Predators
-                .Where(x => Global.DistanceSquared(x, this) < Global.SystemConfig.RanawayRadius)
-                .OrderBy(x => Global.DistanceSquared(x, this))
-                .FirstOrDefault();
-                if (nearestPredator != null)
-                    Runaway(nearestPredator as IPredator, 300);
+                Runaway(Chaser, 300);
             }
             base.AITick();
         }
@@ -108,15 +103,18 @@ namespace Evo.Core.Entities
 
         public override void CreateChilds()
         {
-            var herbivoresCount = Global.Herbivores.Count();
-            var countOfChilds = (herbivoresCount > Global.HerbivoresLimit) ? 1 : 7;
-            for (int i = countOfChilds; i >= 0; i--)
-            {
-                var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
-                var entity = new Herbivore(new Point(), 2, Global.GetValue(typeof(Herbivore), x=>x.MinSpeed), Global.GetValue(typeof(Herbivore), x=>x.MaxSpeed));
-                Scene.Add(entity);
-                entity.SetPosition(pos.X, pos.Y);
-            }
+            var scene = Scene;
+            Global.PendingActions.Add(() => {
+                var herbivoresCount = Global.Herbivores.Count();
+                var countOfChilds = (herbivoresCount > Global.HerbivoresLimit) ? 1 : 7;
+                for (int i = countOfChilds; i >= 0; i--)
+                {
+                    var pos = new Point((int)X + Rand.Int(-10, 10), (int)Y + Rand.Int(-10, 10));
+                    var entity = new Herbivore(new Point(), 2, MinSpeed, MaxSpeed);
+                    scene.Add(entity);
+                    entity.SetPosition(pos.X, pos.Y);
+                }
+            });
         }
     }
 }

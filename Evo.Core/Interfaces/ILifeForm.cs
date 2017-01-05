@@ -9,6 +9,6 @@ namespace Evo.Core.Interfaces
 {
     public interface ILifeForm : IMovable, IGrowable, IReproductable, IAIControllable
     {
-        
+        bool Alive { get; set; }
     }
 }

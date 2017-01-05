@@ -31,6 +31,7 @@ namespace Evo.Core.Entities
         public double Speed { get; set; }
         public object Target { get; set; }
         public int GrowLimit { get; set; }
+        public bool Alive { get; set; } = true;
 
         public float GetX() { return X; }
 
@@ -56,10 +57,13 @@ namespace Evo.Core.Entities
             Graphic.CenterOrigin();
             X = position.X;
             Y = position.Y;
+
+            Global.Cells.Add(this);
         }
 
         public void Destroy()
         {
+            Global.Cells.Remove(this);
             RemoveSelf();
         }
         
@@ -68,6 +72,7 @@ namespace Evo.Core.Entities
             if (reason == DyingReason.Time)
                 CreateChilds();
             Destroy();
+            Alive = false;
         }
 
         public virtual void Reproduce()

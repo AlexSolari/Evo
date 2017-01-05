@@ -22,5 +22,34 @@ namespace Evo.Core
                 Add(new Herbivore(new Point(Rand.Int(Global.Width), Rand.Int(Global.Height))));
             }            
         }
+
+        public override void Update()
+        {
+            foreach (var action in Global.PendingActions)
+            {
+                action();
+            }
+            Global.PendingActions.Clear();
+            var preds = Global.Predators.Cast<Cell>().ToList();
+            var herbs = Global.Herbivores.Cast<Cell>().ToList();
+            var pCount = preds.Count();
+            var hCount = herbs.Count();
+
+            for (int i = 0; i < pCount; i++)
+            {
+                var pred = preds[i];
+
+                if (!Global.SquaredDistances.ContainsKey(pred))
+                    Global.SquaredDistances[pred] = new Dictionary<Interfaces.ILifeForm, double>();
+
+                for (int j = 0; j < hCount; j++)
+                {
+                    var herb = herbs[j];
+                    Global.SquaredDistances[pred][herb] = Global.DistanceSquared(herb, pred);
+                }
+            }
+            
+            base.Update();
+        }
     }
 }
